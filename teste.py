@@ -76,7 +76,7 @@ def main(page: ft.Page):
         ],
         spacing=20,
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        expand=False
+        expand=True
     )
 
     end_drawer = ft.NavigationDrawer(
@@ -94,23 +94,81 @@ def main(page: ft.Page):
         ],
     )
 
-    page.add(
-        ft.Row([
-            ft.IconButton(
-                icon=ft.Icons.MENU,
-                icon_color=ft.Colors.BLUE_900,
-                icon_size=40,
-                tooltip="Menu Principal",
-                on_click=lambda e: page.open(drawer),
-            ),
-            ft.IconButton(
-                icon=ft.Icons.SETTINGS,
-                icon_color=ft.Colors.BLUE_900,
-                icon_size=40,
-                tooltip="Menu Lateral",
-                on_click=lambda e: page.open(end_drawer),
-            )
-        ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+    # Container principal expandido com borda em todos os lados exceto no topo
+    main_container = ft.Container(
+        content=ft.Column(
+            [
+                # Barra de botões no topo
+                ft.Row([
+                    ft.IconButton(
+                        icon=ft.Icons.MENU,
+                        icon_color=ft.Colors.BLUE_900,
+                        icon_size=40,
+                        tooltip="Menu Principal",
+                        on_click=lambda e: page.open(drawer),
+                    ),
+                    ft.IconButton(
+                        icon=ft.Icons.MORE_VERT,
+                        icon_color=ft.Colors.BLUE_900,
+                        icon_size=40,
+                        tooltip="Menu Lateral",
+                        on_click=lambda e: page.open(end_drawer),
+                    )
+                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
+                
+                # Conteúdo principal abaixo da barra de botões
+                ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Text("CONTEÚDO PRINCIPAL", 
+                                   size=20, 
+                                   weight=ft.FontWeight.BOLD,
+                                   color=ft.Colors.BLUE_900),
+                            ft.Text("Este é o container expandido com borda nas laterais e inferior.",
+                                   size=16,
+                                   color=ft.Colors.BLACK87),
+                            ft.Text("A borda superior foi removida conforme solicitado.",
+                                   size=16,
+                                   color=ft.Colors.BLACK87),
+                            # Adicione mais conteúdo aqui conforme necessário
+                            ft.Container(
+                                height=800,
+                                bgcolor=ft.Colors.WHITE,
+                                border_radius=10,
+                                padding=20,
+                                content=ft.Column([
+                                    ft.Text("Área de conteúdo", size=18),
+                                    ft.Divider(),
+                                    ft.Text("Você pode adicionar qualquer widget aqui...")
+                                ])
+                            )
+                        ],
+                        spacing=20,
+                        alignment=ft.MainAxisAlignment.START,
+                        expand=True
+                    ),
+                    padding=20,
+                    expand=True
+                )
+            ],
+            spacing=0,
+            expand=True
+        ),
+        bgcolor=ft.Colors.WHITE,
+        border=ft.border.only(
+            left=ft.border.BorderSide(2, ft.Colors.BLACK),
+            right=ft.border.BorderSide(2, ft.Colors.BLACK),
+            bottom=ft.border.BorderSide(2, ft.Colors.BLACK)
+        ),
+        border_radius=ft.border_radius.only(
+            bottom_left=10,
+            bottom_right=10
+        ),
+        margin=ft.margin.only(top=0),  # Remove margem superior para ficar colado no topo
+        padding=ft.padding.only(top=0),  # Remove padding superior
+        expand=True
     )
+
+    page.add(main_container)
 
 ft.app(target=main)
