@@ -1,0 +1,11 @@
+"cria um nova barra de menu widget(HOME,NOTIFICAÇÕES,MATERIAIS,DESEMPENHO,(PERFIL?) CONFIGURAÇÕES)
+
+foto de perfil no lugar do menu vertical 
+
+deixar o button de opções na vertical direito (SUPORTE,SAIR, (TEMA?))
+
+Container de carrosel no lugar do "este e o container expandido com borda nas laterais e inferior"
+
+filepicker 
+
+tema(solido)
