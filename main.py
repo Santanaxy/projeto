@@ -1,50 +1,30 @@
 import flet as ft
-import os
 
 def main(page: ft.Page):
-    
+    page.bgcolor = "#FFFFFF"
     page.title = "MENU APP"
     page.window.width = 500
     page.window.height = 900
     page.window.max_width = 500
     page.window.max_height = 900
-    page.padding = 0  # Remover qualquer padding da página
-    page.bgcolor = "transparent"  # Tornar o fundo da página transparente
-    
-    # Obter o diretório atual do script
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    gif_path = os.path.join(current_dir, "img", "purple.gif")
-    
-    # Verificar se o arquivo existe
-    if not os.path.exists(gif_path):
-        print(f"AVISO: Arquivo GIF não encontrado em: {gif_path}")
-        # Usar um GIF online como fallback
-        gif_src = "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
-    else:
-        gif_src = gif_path
-    
-    # CODIGO PARA COLOCAR O GIF DE Fundo cobrindo toda a tela
-    gif_bg = ft.Container(
-        content=ft.Image(
-            src=gif_src,
-            fit=ft.ImageFit.COVER,
-            width=page.window.width,
-            height=page.window.height,
-        ),
-        expand=True,
-        alignment=ft.alignment.center,
-    )
-    
-    def handle_dismissal(e):
-        print(f"INICIO!")
-        print(f"Drawer dismissed!")
-    
+
+    # Variável para controlar o item selecionado no menu
+    selected_index = 0
+
+    # Funções para o menu lateral direito
     def handle_change(e):
         print(f"Selected Index changed: {e.control.selected_index}")
-        page.close(drawer)
+        page.close(end_drawer)
 
-#AQUI E A BARRA DE MENU LATERAL ESQUERDA
-    drawer = ft.NavigationDrawer(
+    def handle_dismissal(e):
+        print(f"Drawer dismissed!")
+
+    def open_end_drawer(e):
+        page.open(end_drawer)
+
+    # Menu lateral DIREITO
+    end_drawer = ft.NavigationDrawer(
+        position=ft.NavigationDrawerPosition.END,  # Define como menu lateral DIREITO
         on_dismiss=handle_dismissal,
         on_change=handle_change,
         controls=[
@@ -67,8 +47,8 @@ def main(page: ft.Page):
             ),
             ft.NavigationDrawerDestination(
                 label="MATERIAIS",
-                icon=ft.Icons.MESSENGER,
-                selected_icon=ft.Icon(ft.Icons.MESSENGER),
+                icon=ft.Icons.BOOK,  # Ícone mais apropriado para Materiais
+                selected_icon=ft.Icon(ft.Icons.BOOK),
             ),
             ft.NavigationDrawerDestination(
                 label="SUPORTE",
@@ -82,167 +62,242 @@ def main(page: ft.Page):
             ),
             ft.NavigationDrawerDestination(
                 label="SAIR",
-                icon=ft.Icon(ft.Icons.APP_BLOCKING),
-                selected_icon=ft.Icon(ft.Icons.APP_BLOCKING),
+                icon=ft.Icon(ft.Icons.EXIT_TO_APP),  # Ícone mais apropriado para Sair
+                selected_icon=ft.Icon(ft.Icons.EXIT_TO_APP),
             ),
         ],
     )
-    #AQUI SÃO AS MENSAGENS QUE APARECE NO MEU MENU LATERAL ESQUERDO 
-    def handle_end_drawer_dismissal(e):
-        print("End drawer dismissed")
 
-    def handle_end_drawer_change(e):
-        print(f"Selected Index changed: {e.control.selected_index}")
-        page.close(end_drawer)
-    #AQUI E A BARRA DE MENU LATERAL DIREITA
-    col = ft.Column(
-        [
-            ft.Text("Item 1", size=16, weight=ft.FontWeight.BOLD),
-            ft.Text("Item 2", size=16, weight=ft.FontWeight.BOLD),
-            ft.Text("Item 3", size=16, weight=ft.FontWeight.BOLD)
-        ],
-        spacing=20,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        expand=True
-    )
+    # Funções para o menu inferior
+    def menu_item_clicked(e):
+        nonlocal selected_index
+        selected_index = e.control.data
+        update_menu_style()
+        print(f"Menu item selecionado: {e.control.data} - {e.control.tooltip}")
 
-    end_drawer = ft.NavigationDrawer(
-        position=ft.NavigationDrawerPosition.END,
-        on_dismiss=handle_end_drawer_dismissal,
-        on_change=handle_end_drawer_change,
-        controls=[
-            ft.Container(
-                content=col,
-                padding=20,
-                border=ft.border.all(2, ft.Colors.BLACK),
-                margin=ft.margin.all(10),
-                expand=True
-            )
-        ],
-    )
-    #AQUI E O CONTAINER DA FOTO DE PERFIL DO USUARIO QUE FICA NA TELA PRINCIPAL
-    circular_container = ft.Container(
-        width=100,
-        height=100,
-        content=ft.Image(
-            src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80", #AQUI VAI SER O LINK DA FOTO DE PERFIL DO USUARIO
-            fit=ft.ImageFit.COVER,
-        ),
-        border=ft.border.all(5, "#ff006e"),
-        border_radius=100,
-        clip_behavior=ft.ClipBehavior.HARD_EDGE,
-    )
+    def update_menu_style():
+        for i, item in enumerate(menu_items.controls):
+            if i == selected_index:
+                # Item selecionado - destaque
+                item.bgcolor = "#0A0DA1"
+                item.content.controls[0].color = ft.Colors.WHITE
+                item.content.controls[1].color = ft.Colors.WHITE
+                item.content.controls[1].weight = ft.FontWeight.BOLD
+            else:
+                # Item não selecionado
+                item.bgcolor = ft.Colors.TRANSPARENT
+                item.content.controls[0].color = "#666666"
+                item.content.controls[1].color = "#666666"
+                item.content.controls[1].weight = ft.FontWeight.NORMAL
+        page.update()
 
-    # AQUI SÃO OS CODIGOS DA BARRA SUPERIOR E DO CONTEUDO PRINCIPAL
-    top_bar = ft.Container(
-        content=ft.Row([
-            ft.IconButton(
-                icon=ft.Icons.MENU,
-                icon_color="#FFFFFF",
-                icon_size=30,
-                tooltip="Menu Principal",
-                on_click=lambda e: page.open(drawer),
+    # Função para criar itens do menu
+    def create_menu_item(icon, label, index, tooltip):
+        return ft.Container(
+            content=ft.Column(
+                [
+                    ft.Icon(icon, size=28, color="#666666"),
+                    ft.Text(label, size=11, color="#666666", text_align=ft.TextAlign.CENTER)
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=3,
             ),
-            ft.Container(
-                content=ft.Text("FÁBRICA DE PROGRAMADORES", 
-                               size=20, 
-                               weight=ft.FontWeight.BOLD,
-                               color="#FFFFFF"),
-                expand=True,
-                alignment=ft.alignment.center
-            ),
-            ft.IconButton(
-                icon=ft.Icons.MORE_VERT,
-                icon_color="#FFFFFF",
-                icon_size=30,
-                tooltip="Menu Lateral",
-                on_click=lambda e: page.open(end_drawer),
-            )
-        ], 
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        vertical_alignment=ft.CrossAxisAlignment.CENTER
-        ),
-        bgcolor="#80000000",  # Preto semi-transparente
-        padding=10,
-        border_radius=ft.border_radius.only(
-            bottom_left=10,
-            bottom_right=10
+            padding=10,
+            border_radius=10,
+            data=index,
+            tooltip=tooltip,
+            on_click=menu_item_clicked,
+            animate=ft.Animation(200, curve=ft.AnimationCurve.EASE_OUT),
+            width=70,
+            height=65,
         )
+
+    # Criar menu horizontal inferior
+    menu_items = ft.Row(
+        controls=[
+            create_menu_item(ft.Icons.HOME, "Home", 0, "Página Inicial"),
+            create_menu_item(ft.Icons.NOTIFICATIONS, "Notificações", 1, "Ver Notificações"),
+            create_menu_item(ft.Icons.BOOK, "Materiais", 2, "Materiais de Estudo"),
+            create_menu_item(ft.Icons.TRENDING_UP, "Desempenho", 3, "Ver Desempenho"),
+            create_menu_item(ft.Icons.PERSON, "Perfil", 4, "Meu Perfil"),
+        ],
+        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER,
     )
 
-    # AQUI E O CONTEUDO PRINCIPAL DA TELA DE MENU DO USUARIO
-    content_area = ft.Container(
+    # Menu inferior
+    bottom_menu = ft.Container(
+        content=menu_items,
+        bgcolor="#F5F5F5",
+        padding=ft.padding.symmetric(vertical=10, horizontal=5),
+        border_radius=0,
+        border=ft.border.only(top=ft.border.BorderSide(1, "#E0E0E0")),
+        height=80
+    )
+
+    # Conteúdo principal
+    main_content = ft.Container(
         content=ft.Column(
             [
-                ft.Text("Bem-vindo ao App!",
-                       size=16,
-                       color="#FFFFFF",
-                       text_align=ft.TextAlign.CENTER),
-                ft.Row([
-                    circular_container,
-                    ft.Text("Perfil do Usuário", 
-                           size=20, 
-                           weight=ft.FontWeight.BOLD,
-                           color="#FFFFFF")
-                ], 
-                alignment=ft.MainAxisAlignment.START,
-                spacing=10),
-                ft.Text("A CALABRESA ACABOU !",
-                       size=16,
-                       color="#FFFFFF",
-                       text_align=ft.TextAlign.CENTER),
+                # Header com título e botão para abrir menu lateral DIREITO
                 ft.Container(
-                    height=400,
-                    bgcolor="#80000000",  # Preto semi-transparente
-                    border_radius=10,
+                    content=ft.Row([
+                        # Título centralizado
+                        ft.Container(
+                            content=ft.Text("FÁBRICA DE PROGRAMADORES", 
+                                           size=22, 
+                                           weight=ft.FontWeight.BOLD,
+                                           color="#0A0DA1",
+                                           text_align=ft.TextAlign.CENTER),
+                            alignment=ft.alignment.center,
+                            expand=True
+                        ),
+                        
+                        # Botão para abrir menu lateral DIREITO
+                        ft.Container(
+                            content=ft.IconButton(
+                                icon=ft.Icons.MENU,
+                                icon_color="#0A0DA1",
+                                icon_size=30,
+                                tooltip="Abrir Menu Lateral",
+                                on_click=open_end_drawer,
+                            ),
+                            margin=ft.margin.only(left=10)
+                        )
+                    ], 
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER
+                    ),
+                    bgcolor="#E9E9E9",
                     padding=20,
-                    content=ft.Column([
-                        ft.Text("ÁREA DO ALUNO", 
-                               size=18, 
-                               weight=ft.FontWeight.BOLD,
-                               color="#FFFFFF",
-                               text_align=ft.TextAlign.CENTER),
-                        ft.Divider(color="#FFFFFF"),
-                        ft.Text("Você pode adicionar qualquer BOSTA AQUI.",
-                               color="#FFFFFF",
-                               text_align=ft.TextAlign.CENTER)
-                    ],
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+                    border_radius=ft.border_radius.only(bottom_left=15, bottom_right=15),
+                    height=80
+                ),
+                
+                # Conteúdo principal scrollável
+                ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Text("Bem-vindo à Fábrica de Programadores!",
+                                   size=18,
+                                   weight=ft.FontWeight.BOLD,
+                                   color="#080404",
+                                   text_align=ft.TextAlign.CENTER),
+                            ft.Text("Agora com menu lateral direito funcional!",
+                                   size=16,
+                                   color="#2AC9A6",
+                                   text_align=ft.TextAlign.CENTER),
+                            
+                            # Área de conteúdo expansível
+                            ft.Container(
+                                height=550,
+                                bgcolor="#E9E9E9",
+                                border_radius=15,
+                                padding=25,
+                                margin=ft.margin.symmetric(horizontal=15),
+                                content=ft.Column([
+                                    ft.Text("Área de conteúdo principal", 
+                                           size=18, 
+                                           weight=ft.FontWeight.BOLD,
+                                           text_align=ft.TextAlign.CENTER),
+                                    ft.Divider(height=20, color="#CCCCCC"),
+                                    ft.Text("Menu lateral direito implantado com sucesso!", 
+                                           size=16,
+                                           text_align=ft.TextAlign.CENTER),
+                                    ft.Text("Clique no ícone ☰ no canto superior direito", 
+                                           size=14,
+                                           color="#0A0DA1",
+                                           text_align=ft.TextAlign.CENTER),
+                                    ft.Text("Itens do menu lateral:", 
+                                           size=14,
+                                           weight=ft.FontWeight.BOLD,
+                                           color="#0A0DA1"),
+                                    ft.Text("• INICIO - Página inicial", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• NOTIFICAÇÕES - Alertas e avisos", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• DESEMPENHO - Estatísticas", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• MATERIAIS - Conteúdo de estudo", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• SUPORTE - Ajuda técnica", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• CONFIGURAÇÕES - Configurações do app", 
+                                           size=14,
+                                           color="#666666"),
+                                    ft.Text("• SAIR - Encerrar aplicação", 
+                                           size=14,
+                                           color="#FF0000"),
+                                    ft.Divider(height=20, color="#CCCCCC"),
+                                    ft.Text("Clique nos ícones do menu inferior para testar!",
+                                           size=14,
+                                           weight=ft.FontWeight.BOLD,
+                                           color="#2AC9A6",
+                                           text_align=ft.TextAlign.CENTER),
+                                    
+                                    # Espaço adicional para demonstrar scroll
+                                    ft.Container(
+                                        height=150,
+                                        bgcolor="#D9D9D9",
+                                        border_radius=10,
+                                        padding=15,
+                                        content=ft.Column([
+                                            ft.Text("Conteúdo adicional",
+                                                   size=14,
+                                                   weight=ft.FontWeight.BOLD,
+                                                   text_align=ft.TextAlign.CENTER),
+                                            ft.Text("Mais conteúdo pode ser adicionado aqui...",
+                                                   size=12,
+                                                   text_align=ft.TextAlign.CENTER)
+                                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+                                    )
+                                ],
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=15)
+                            )
+                        ],
+                        spacing=20,
+                        alignment=ft.MainAxisAlignment.START,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        expand=True,
+                        scroll=ft.ScrollMode.ADAPTIVE
+                    ),
+                    padding=15,
+                    expand=True
                 )
             ],
-            spacing=20,
-            alignment=ft.MainAxisAlignment.START,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=0,
             expand=True
         ),
-        padding=20,
+        bgcolor="#FFFFFF",
         expand=True
     )
 
-    # AQUI E O CODIGO DE LAYOUT PRINCIPAL COM FUNDO DE GIF E IMPORPANTE TER PRA RODAR O GIF DE FUNDO
-    main_layout = ft.Stack(
+    # Layout principal com Stack para menu inferior fixo
+    page_content = ft.Stack(
         [
-            gif_bg,  # GIF de fundo cobrindo toda a tela
-            ft.Column(
-                [
-                    top_bar,
-                    content_area
-                ],
-                expand=True
+            # Conteúdo principal
+            main_content,
+            
+            # Menu inferior fixo na base
+            ft.Container(
+                content=bottom_menu,
+                bottom=0,
+                left=0,
+                right=0,
             )
         ],
         expand=True
     )
 
-    # Container principal sem margens ou padding
-    page_container = ft.Container(
-        content=main_layout,
-        expand=True,
-        padding=0,
-        margin=0,
-    )
+    page.add(page_content)
+    
+    # Inicializar estilo do menu
+    update_menu_style()
 
-    page.add(page_container)
-
-if __name__ == "__main__":
-    ft.app(target=main, assets_dir="img")
+ft.app(target=main)
