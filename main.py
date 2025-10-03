@@ -1,294 +1,344 @@
-import flet as ft
+import flet  as ft
+from flet import *
 
-class App:
-    def __init__(self):
-        self.primary_color = "#1E5FE9"
-        self.secondary_color = "#2AC9A6"
-        self.carousel_images = [
-            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400",
-            "https://images.unsplash.com/photo-1555099962-4199c345e5dd?w=400",
-            "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400",
-            "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400"
-        ]
-        self.carousel_index = 0
-        self.selected_index = 0
-        self.auto_play_enabled = True
-        self.drawer_open = False
+def Home(page: ft.Page):
+    
+    page.theme_mode = ft.ThemeMode.DARK 
+    page.theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_ORANGE)
+    page.title = "MENU APP"
+    page.window.width = 500
+    page.window.height = 800
+    page.window.max_width = 500
+    page.window.max_height = 800
+    page.window.min_width = 500
+    page.window.min_height = 800
+    page.scroll = 'auto'
 
-    def create_drawer(self, page):
+    slides = [
+        ft.Image(src="https://picsum.photos/800/400?1", width=500, height=300, fit=ft.ImageFit.COVER, border_radius=10),
+        ft.Image(src="https://picsum.photos/800/400?2", width=500, height=300, fit=ft.ImageFit.COVER, border_radius=10),
+        ft.Image(src="https://picsum.photos/800/400?3", width=500, height=300, fit=ft.ImageFit.COVER, border_radius=10),
+        ft.Image(src="https://picsum.photos/800/400?4", width=500, height=300, fit=ft.ImageFit.COVER, border_radius=10),
+    ]
+
+    # Índice atual
+    current_index = ft.Ref[int]()
+    current_index.value = 0
+
+    # Container onde o slide será mostrado
+    slide_view = ft.Container(content=slides[current_index.value], width=500, height=300, border_radius=10)
+
+    # Atualizar slide
+    def update_slide(index):
+        slide_view.content = slides[index]
+        for i, d in enumerate(dots.controls):
+            d.bgcolor = "red" if i == index else "white"
+        page.update()
+
+    # Botão próximo
+    def next_slide(e):
+        current_index.value = (current_index.value + 1) % len(slides)
+        update_slide(current_index.value)
+
+    # Botão anterior
+    def prev_slide(e):
+        current_index.value = (current_index.value - 1) % len(slides)
+        update_slide(current_index.value)
+
+    # Indicadores (bolinhas)
+    dots = ft.Row(
+        controls=[
+            ft.Container(width=15, height=5, bgcolor="white", border_radius=5)
+            for _ in slides
+        ],
+        alignment="center",
+        spacing=5,
+    )
+    dots.controls[0].bgcolor = "red"
+
+    # Botões estilizados como na imagem
+    prev_button = ft.IconButton(
+        icon=ft.Icons.KEYBOARD_ARROW_LEFT_SHARP,
+        icon_color="white",
         
-        """ANIMAÇÃO DO MENU LATERAL DO APLICATIVO"""
+        on_click=prev_slide,
+        style=ft.ButtonStyle(shape=ft.CircleBorder())
+    )
+    next_button = ft.IconButton(
+        icon_color="white",
+        icon=ft.Icons.KEYBOARD_ARROW_RIGHT_ROUNDED,
         
-        def toggle_drawer(e):
-            self.drawer_open = not self.drawer_open
-            drawer.width = 280 if self.drawer_open else 0
-            overlay.opacity = 0.4 if self.drawer_open else 0
-            overlay.visible = self.drawer_open
+        on_click=next_slide,
+        style=ft.ButtonStyle(shape=ft.CircleBorder())
+    )
+
+    # Layout com botões sobrepostos ao slide
+    carousel = ft.Stack(
+        controls=[
+            slide_view,
+            ft.Row([prev_button, ft.Container(expand=True), next_button],
+                   alignment="spaceBetween",
+                   width=500,
+                   height=300,
+                   vertical_alignment="center"),
+        ],
+        width=500,
+        height=300,
+    )
+
+    # Layout final
+    # ===================================== CRIANDO FUCOES DOS ELEMENTOS
+    # FUNCAO DO MENU
+    def clicou_menu(e):
+        item = e.control.text
+        if item == "Suporte":
+            print("Abrir suporte...")
+        elif item == "Configurações":
+            print("Abrir configurações...")
+        elif item == "Tema":
+            # Alternar entre claro e escuro
+            if page.theme_mode == ft.ThemeMode.DARK:
+                page.theme_mode = ft.ThemeMode.LIGHT
+                page.theme = ft.Theme(color_scheme_seed=ft.Colors.INDIGO)
+            else:
+                page.theme_mode = ft.ThemeMode.DARK
+                page.theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_ORANGE)
+            print(f"Tema alterado para: {page.theme_mode}")
             page.update()
 
-        def menu_clicked(e):
-            item_text = e.control.content.controls[1].value
-            print(f"Item {item_text} clicado!")
-            toggle_drawer(e)
+    def mudar_tema(a):
+            # Alternar entre claro e escuro inultil
+            if page.theme_mode == ft.ThemeMode.DARK:
+                page.theme_mode = ft.ThemeMode.LIGHT
+                page.theme = ft.Theme(color_scheme_seed=ft.Colors.INDIGO)
+            else:
+                page.theme_mode = ft.ThemeMode.DARK
+                page.theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_ORANGE)
+            print(f"Tema alterado para: {page.theme_mode}")
+            page.update()
 
-        # Overlay
-        overlay = ft.Container(
-            expand=True, bgcolor="black", opacity=0, visible=False,
-            on_click=toggle_drawer, animate_opacity=300
-        )
+    """""criar uma função que vai mudando de tela depois colocar no icone que vai mudar de tela on_click = Mudar_tela(sla,configuração,perfil)"""
+    def mudar_tela(nova_tela):
+        page.controls.clear()
+        page.add(nova_tela)    
+        page.update()     
+    # ft.ElevatedButton("Voltar para Login",on_click=lambda _: mudar_tela(tela()))
+    
 
-        # mensagem dos button do menu lateral 
-        drawer = ft.Container(
-            width=0, height=page.height, bgcolor="white",
-            content=ft.Column([
-                # Header do drawer
-                ft.Container(
-                    content=ft.Row([
-                        ft.Text("MENU", size=20, weight="bold", color="white" ),
-                    ], alignment="center"),
-                    bgcolor=self.primary_color, padding=15, height=70,border_radius=3, margin=1
-                ),
-                         #  """ICONES E TEXTOS DA ABA DO MENU LATERAL """
+
+    # ===================================== CRIANDO ELEMENTOS
+    # Titulo da app/nome do app dentro do appbar
+
+    page.appbar = ft.AppBar(
+        leading_width=10,
+        title=ft.Text("FÁBRICA  PROGRAMADORES"),
+        center_title=False,
+        bgcolor=ft.Colors.SURFACE_CONTAINER_HIGHEST,  
+        actions=[
+            ft.PopupMenuButton(
+                items=[
+            ft.PopupMenuItem(text="TEMA", icon="WB_SUNNY_OUTLINED", on_click=mudar_tema),
+            ft.PopupMenuItem(text="CONFIGURAÇÕES", icon="SETTINGS_OUTLINED", on_click=clicou_menu),
+            ft.PopupMenuItem(text="SUPORTE", icon="HELP_OUTLINE_ROUNDED", on_click=clicou_menu),
+            ft.PopupMenuItem(),  # divider
+            ft.PopupMenuItem(text="SAIR", icon="CLOSE_ROUNDED", on_click=clicou_menu),        
                 
-                ft.Container(
-                    content=ft.Column([
-                        self.create_menu_item("HOME", "INÍCIO", menu_clicked),
-                        ft.Divider(height=1),
-                        self.create_menu_item("SUPPORT", "SUPORTE", menu_clicked),
-                        ft.Divider(height=1),
-                        ft.Container(expand=True),  # Espaço flexível
-                        self.create_menu_item("EXIT_TO_APP", "SAIR", menu_clicked, is_exit=True),
-                    ], spacing=0),
-                    padding=10, expand=True
-                )
-            ], spacing=0),
-            animate=300, right=0, top=0,
-            shadow=ft.BoxShadow(blur_radius=20, color=ft.Colors.BLACK54)
+                ]
+            ),
+        ],
+    )
+    
+    # Perfil imagem
+    page.padding = 15
+    perfil = ft.Row(
+        spacing=15,
+        controls=[
+            # Avatar com inicial
+            ft.CircleAvatar(
+                content=ft.Text("X", size=24, weight="bold", color=ft.Colors.WHITE),
+                bgcolor=ft.Colors.GREEN,
+                radius=30
+            ),
+            # Coluna com nome + user
+            ft.Column(
+                spacing=3,
+                alignment="center",
+                controls=[
+                    ft.Text("Nome", size=18, weight="bold"),
+                    ft.Row(
+                        spacing=5,
+                        controls=[
+                            ft.Text("@nome.com", size=14),
+                            ft.Text("•", size=14),
+                            ft.Text("Ver perfil", size=14),
+                            ft.Icon(ft.Icons.CHEVRON_RIGHT, size=16),
+                        ] ) ] ) ] )
+
+
+    page.add(perfil)
+
+    # NavBar inferior (Home, Notificacoes, Desempenho, Perfil, )
+    page.navigation_bar = ft.NavigationBar(
+        selected_index=0,
+        indicator_color="TEMA",
+        # indicator_color="#0e68b1",
+        destinations=[
+            ft.NavigationBarDestination(
+                icon=ft.Icons.HOME_OUTLINED,
+                selected_icon=ft.Icons.HOME,
+                label="Início"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.Icons.LIBRARY_BOOKS_OUTLINED,
+                selected_icon=ft.Icons.INSERT_CHART,
+                label="Desempenho"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.Icons.MESSAGE_OUTLINED,
+                selected_icon=ft.Icons.MESSAGE,
+                label="Notificações"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.Icons.TAG_FACES_OUTLINED,
+                selected_icon=ft.Icons.PERSON,
+                label="Perfil"
+            ),
+        ],
+        on_change=lambda e: print(f"Você clicou na aba {e.control.selected_index}")
+)
+
+
+    eventos = ft.Column(
+        spacing=20,
+        controls=[
+            # Evento do dia 04 de Outubro
+            ft.Row(
+                spacing=10,
+                controls=[
+                    # Conteúdo do evento
+                    ft.Column(
+                        expand=True,
+                        controls=[
+                            ft.Container(
+                                content=ft.Text("Títulooooooooo", weight="bold"),
+                                padding=10,
+                                border_radius=10
+                            ),
+                            ft.Container(
+                                content=ft.Column([
+                                    ft.Text("Subtítulo em negrito", weight="bold"),
+                                    ft.Text(
+                                        "Conteúdo explicativo com várias linhas:\n"
+                                        "• Usar weight='bold' para negrito\n"
+                                        "• size=12 para tamanho pequeno",
+                                        size=12,
+                                    )
+                                ]),
+                                padding=10,
+                                border_radius=10
+                            ),
+                        ]
+                    )
+                ]
+            )
+        ]
+    )
+
+    page.add(
+        ft.ExpansionTile(
+            title=ft.Text("Opaaaa" , weight="bold"),
+            subtitle=ft.Text("O que será que será?" , weight="bold"),
+            affinity=ft.TileAffinity.PLATFORM,
+            maintain_state=True,
+            controls=[eventos],
         )
+    )
 
-        return overlay, drawer, toggle_drawer
 
-    def create_menu_item(self, icon, text, on_click, is_exit=False):
-        """Cria um item do menu"""
-        color = "#ef4444" if is_exit else self.primary_color
-        bg_color = "#fee2e2" if is_exit else "#e0e7ff"
-        
-        """return dos itens do meenu lateral"""
-        
-        return ft.Container(
-            content=ft.Row([
-                ft.Container(
-                    content=ft.Icon(icon, color=color, size=20),
-                    bgcolor=bg_color, padding=10, border_radius=10, width=40, height=40
-                ),
-                ft.Text(text, weight="bold", color=color, size=16)
-            ], spacing=15),
-            padding=15, on_click=on_click, border_radius=10,
-            bgcolor={"": "transparent", "hovered": "#f1f5f9"}
-        )
 
-    def create_header(self, toggle_drawer):
-        
-        """modificar o cabeçalho do aplicativo"""
-        
-        return ft.Container(
-            content=ft.Row([
-                ft.IconButton(
-                    icon="MENU", icon_color="#FFFFFF", icon_size=30,
-                    on_click=toggle_drawer, tooltip="Abrir Menu"
-                ),
-                ft.Text("FÁBRICA DE PROGRAMADORES", size=22, weight="bold", 
-                       color="#ffffff", text_align=ft.TextAlign.CENTER, expand=True),
-            ], alignment=ft.MainAxisAlignment.START),
-            bgcolor=self.primary_color, padding=20, height=70, border_radius=10, margin=1
-        )
+    # Função para abrir links externos
+    def abrir_link(e, url):
+        page.launch_url(url)
 
-    def create_profile_section(self, pick_file):
-        
-        """mudar a seção de perfil do aplicativo"""
-        
-        return ft.Container(
-            content=ft.Row([
-                ft.Stack([
-                    ft.Image(
-                        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200",
-                        width=110, height=110, fit=ft.ImageFit.COVER, border_radius=110
-                    ),
-                    ft.Container(
-                        content=ft.IconButton(
-                            icon="CAMERA_ALT", icon_size=20, icon_color="white",
-                            on_click=pick_file, tooltip="Adicionar Foto",
-                            style=ft.ButtonStyle(bgcolor={"": self.primary_color}, shape=ft.CircleBorder())
+
+
+            
+    links = ft.Row(
+            alignment="spaceEvenly",
+            spacing=20,
+            controls=[
+                # Primeiro botão (foto circular)
+                ft.Column(
+                    spacing=0,
+                    horizontal_alignment="center",
+                    controls=[
+                        ft.Container(
+                            content=ft.Image(
+                                src=r"img\fabrica.jpg",   # 🔹 sua imagem PNG
+                                width=73,
+                                height=73,
+                                fit=ft.ImageFit.COVER
+                            ),
+                            width=73,
+                            height=73,
+                            border_radius=100, # 🔹 deixa circular
+                            on_click=lambda e: abrir_link(e, "https://prefeitura.santanadeparnaiba.sp.gov.br/Plataforma/smti/fabrica-de-programadores"),
+                            ink=True,
                         ),
-                        alignment=ft.alignment.bottom_right,
-                    )
-                ]),
-                ft.Column([
-                    ft.Text("Usuário", size=18, weight=ft.FontWeight.BOLD, color="#000000"),
-                    ft.Text("Programador Iniciante", size=12, color="#000000"),
-                    ft.ElevatedButton(
-                        "Editar Perfil", icon="EDIT", height=30,
-                        style=ft.ButtonStyle(bgcolor={"WHITE": self.secondary_color}, padding=10)
-                    )
-                ], spacing=3, expand=True)
-            ], alignment=ft.MainAxisAlignment.START),
-             padding=15, border_radius=15, margin=10
-        )
-
-    def create_carousel(self, next_image, previous_image):
-        
-        """carrosel de imagens do aplicativo"""
-        
-        carousel_image = ft.Image(
-            src=self.carousel_images[0],
-            width=400, height=200, fit=ft.ImageFit.COVER, border_radius=15
-        )
-        """""container do carrosel e função de atualizar o carrosel"""
-        def update_carousel():
-            carousel_image.src = self.carousel_images[self.carousel_index]
-
-        carousel = ft.Container(
-            content=ft.Stack([
-                carousel_image,
-                ft.Container(
-                    content=ft.IconButton(
-                        icon="ARROW_BACK_IOS_NEW", icon_color="#ededed",
-                        on_click=previous_image,
-                        style=ft.ButtonStyle(bgcolor={"": ft.Colors.BLACK54})
-                    ), alignment=ft.alignment.center_left
+                        ft.Text("FÁBRICA", size=14)
+                    ]
                 ),
-                ft.Container(
-                    content=ft.IconButton(
-                        icon="ARROW_FORWARD_IOS", icon_color="#efefef",
-                        on_click=next_image,
-                        style=ft.ButtonStyle(bgcolor={"": ft.Colors.BLACK54})
-                    ), alignment=ft.alignment.center_right
+
+                # Segundo botão
+                ft.Column(
+                    spacing=0,
+                    horizontal_alignment="center",
+                    controls=[
+                        ft.Container(
+                            content=ft.Image(
+                                src="img\manutençãq.jpg",
+                                width=73,
+                                height=73,
+                                fit=ft.ImageFit.COVER
+                            ),
+                            width=73,
+                            height=73,
+                            border_radius=100,
+                            on_click=lambda e: abrir_link(e, "https://youtube.com"),
+                            ink=True,
+                        ),
+                        ft.Text("DEVS", size=14)
+                    ]
                 ),
-            ]), width=400, height=200, margin=10, border_radius=15
-        )
-        
-        """"return o carrosel e a função de atualizar o carrosel"""
-        
-        
-        return carousel, update_carousel
 
-    def create_bottom_menu(self, menu_item_clicked):
-        
-        """aplicação do menu inferior"""
-        
-        def create_menu_item(icon, label, index):
-            return ft.Container(
-                content=ft.Column([
-                    ft.Icon(icon, size=28, color="#012643"),
-                    ft.Text(label, size=11, color="#012643", text_align=ft.TextAlign.CENTER)
-                ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=3),
-                padding=10, border_radius=10, data=index, on_click=menu_item_clicked,
-                width=70, height=65, animate=200
-            )
-        
-        """"retorun o menu inferior (icones e textos)"""
-        
-        return ft.Container(
-            content=ft.Row([
-                create_menu_item("HOME", "Home", 0),
-                create_menu_item("NOTIFICATIONS", "Notificações", 1),
-                create_menu_item("BOOK", "Materiais", 2),
-                create_menu_item("TRENDING_UP", "Desempenho", 3),
-                create_menu_item("PERSON", "Perfil", 4),
-            ], alignment=ft.MainAxisAlignment.SPACE_EVENLY),
-            bgcolor="#F5F5F5", padding=10, height=80
+                # Terceiro botão
+                ft.Column(
+                    spacing=0,
+                    horizontal_alignment="center",
+                    controls=[
+                        ft.Container(
+                            content=ft.Image(
+                                src="img\senai.jpg",
+                                width=73,
+                                height=73,
+                                fit=ft.ImageFit.COVER
+                            ),
+                            width=73,
+                            height=73,
+                            border_radius=100,
+                            on_click=lambda e: abrir_link(e, "https://www.sp.senai.br/"),
+                            ink=True,
+                        ), 
+                        ft.Text("SENAI", size=14 )
+                    ]
+                ),
+            ]
         )
 
-    def main(self, page: ft.Page):
-        
-        """modificicar a pagina do aplicativo"""
-        # Configuração da página
-        page.bgcolor = "#ffffff"
-        page.title = "FÁBRICA DE PROGRAMADORES"
-        page.window.width = 500
-        page.window.height = 900
-        page.window.max_width = 500
-        page.window.max_height = 900
+    page.add(
+        carousel,
+        dots)
+    page.add(links)
+ft.app(target=Home)
 
-        """"File Picker(button de adicionar foto de perfil)"""
-        
-        file_picker = ft.FilePicker()
-        page.overlay.append(file_picker)
-
-        def pick_file(e):
-            file_picker.pick_files(allow_multiple=False)
-
-        # Carrossel functions
-        def next_image(e):
-            self.carousel_index = (self.carousel_index + 1) % len(self.carousel_images)
-            update_carousel()
-            page.update()
-
-        def previous_image(e):
-            self.carousel_index = (self.carousel_index - 1) % len(self.carousel_images)
-            update_carousel()
-            page.update()
-
-        # Menu função 
-        def menu_item_clicked(e):
-            self.selected_index = e.control.data
-            page.update()
-
-        """"todos os componentes da página para rodar o layout do aplicativo"""
-        
-        overlay, drawer, toggle_drawer = self.create_drawer(page)
-        header = self.create_header(toggle_drawer)
-        profile_section = self.create_profile_section(pick_file)
-        carousel, update_carousel = self.create_carousel(next_image, previous_image)
-        bottom_menu = self.create_bottom_menu(menu_item_clicked)
-
-        """Conteúdo principal da página"""
-        
-        content = ft.Column([
-            header,
-            ft.Container(
-                content=ft.Column([
-                    ft.Text("Bem-vindo à Fábrica de Programadores!", size=18, 
-                           weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
-                    profile_section,
-                    carousel,
-                    ft.Text("Explore nossos cursos e materiais!", size=14, 
-                           color=self.secondary_color, text_align=ft.TextAlign.CENTER),
-                    ft.Container(
-                        content=ft.Column([
-                            ft.Text("Área de conteúdo principal", size=18, 
-                                   weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
-                            ft.Divider(height=20, color=self.primary_color),
-                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER),
-                        height=300, bgcolor="#E9E9E9", padding=25, border_radius=15, margin=10
-                    )
-                ], scroll=ft.ScrollMode.ADAPTIVE, expand=True),
-                padding=15, expand=True
-            )
-        ], expand=True)
-
-        # Layout final
-        page.add(
-            ft.Stack([
-                content,
-                overlay,
-                drawer,
-                ft.Container(content=bottom_menu, bottom=0, left=0, right=0)
-            ], expand=True)
-        )
-
-        """função de rodar o carrosel automaticamente"""
-        
-        def auto_play():
-            import time
-            while self.auto_play_enabled:
-                time.sleep(3)
-                if self.auto_play_enabled:
-                    self.carousel_index = (self.carousel_index + 1) % len(self.carousel_images)
-                    page.run_task(lambda: update_carousel() or page.update())
-
-        page.run_thread(auto_play)
-
-# Executar aplicação
-app = App()
-ft.app(target=app.main)
+# add um pouco sobre o perfil, nos proxismos dias..., um pouco sobre a fab
